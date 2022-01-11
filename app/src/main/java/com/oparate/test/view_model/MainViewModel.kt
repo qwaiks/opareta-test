@@ -15,18 +15,16 @@ class MainViewModel : ViewModel() {
     var selectedCurrency : String? = null
     var mainListener: MainListner? = null
     var cryptoRepository:CryptoRepository ? = CryptoRepository()
-    var loading :Boolean? = null
 
     fun onSelectItem(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
-        selectedCurrency = parent?.selectedItem.toString();
-
+        selectedCurrency = parent?.selectedItem.toString()
 
     }
 
     fun onGetCrypto(v:View){
         mainListener?.onGetLatestCrypto()
         var response = cryptoRepository?.latestCrypto("20", selectedCurrency)
-        response?.let { mainListener?.onSuccess(it) }
+        response?.let { mainListener?.onSuccess(it,selectedCurrency, amount) }
     }
 
     fun onGetCryptoValue(str: CharSequence, s: Int, e: Int, count: Int) {

@@ -4,10 +4,10 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
+import com.oparate.test.adapter.CryptoListAdapter
 import com.oparate.test.databinding.ActivityMainBinding
 import com.oparate.test.model.CryptoResponse
 import com.oparate.test.services.MainListner
@@ -17,15 +17,17 @@ import com.oparate.test.util.toast
 import com.oparate.test.view_model.MainViewModel
 
 class MainActivity : AppCompatActivity(), MainListner {
-    var binding:ActivityMainBinding? = null
+    var binding: ActivityMainBinding? = null
+    var adapter: CryptoListAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-       binding =
+        binding =
             DataBindingUtil.setContentView(this, R.layout.activity_main)
         val viewModel = ViewModelProviders.of(this).get(MainViewModel::class.java)
         binding?.viewmodel = viewModel
         viewModel.mainListener = this
-
+        adapter = CryptoListAdapter()
+        binding?.rcyCrypto?.adapter = adapter
 
     }
 
@@ -35,23 +37,25 @@ class MainActivity : AppCompatActivity(), MainListner {
         binding?.lytProgressBar?.show()
     }
 
-    override fun onSuccess(response: MutableLiveData<CryptoResponse?>) {
+    override fun onSuccess(
+        response: MutableLiveData<CryptoResponse?>,
+        baseCurrency: String?,
+        amount: String?
+    ) {
         binding?.lytProgressBar?.hide()
         binding?.rcyCrypto?.show()
         response.observe(this, Observer {
-            toast(it.toString())
-            it?.data?.first()?.let { it1 -> Log.e("apiRespone", it1.name) };
+            adapter?.setValues(it!!.data, amount!!, baseCurrency!!)
+            it?.data?.first()?.let { it1 -> Log.e("QWEDD", it1.name) };
 
         })
 
     }
 
 
-
     override fun onError(str: String) {
-       //show error message, hide recycler
+        //show error message, hide recycler
     }
-
 
 
     override fun onFailed(str: String, getLocally: Boolean) {
