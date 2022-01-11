@@ -12,28 +12,33 @@ import retrofit2.Response
 class CryptoRepository {
 
     private val retrofitService: CryptoApi = CryptoApi.getInstance()
-    private val volumesResponseLiveData: MutableLiveData<CryptoResponse?> =
+    private val cryptoResponseLiveData: MutableLiveData<CryptoResponse?> =
         MutableLiveData<CryptoResponse?>()
-
-    fun latestCrypto(limit: String?, convert: String?) {
+    fun latestCrypto(limit: String?, convert: String?) : MutableLiveData<CryptoResponse?>  {
         retrofitService.getLatestCrypto(limit, convert, Api.API_KEY)
             .enqueue(object : Callback<CryptoResponse?> {
+
                 override fun onResponse(
                     call: Call<CryptoResponse?>,
                     response: Response<CryptoResponse?>
                 ) {
-                    volumesResponseLiveData.postValue(response.body())
+                    if (response.isSuccessful) {
+                        cryptoResponseLiveData.postValue(response.body())
+                    }
                 }
 
                 override fun onFailure(call: Call<CryptoResponse?>, t: Throwable) {
-                    volumesResponseLiveData.postValue(null)
+                    cryptoResponseLiveData.postValue(null)
                 }
+
 
             }
             )
+        return cryptoResponseLiveData
+
     }
 
-    fun getLatestCryptoResponseLiveData(): LiveData<CryptoResponse?> {
-        return volumesResponseLiveData
+    fun getLatestResponseBodyLiveData(): LiveData<CryptoResponse?> {
+        return cryptoResponseLiveData
     }
 }

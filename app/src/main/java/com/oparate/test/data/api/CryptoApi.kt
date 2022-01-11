@@ -2,6 +2,7 @@ package com.oparate.test.data.api
 
 import com.oparate.test.data.Api
 import com.oparate.test.model.CryptoResponse
+import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
