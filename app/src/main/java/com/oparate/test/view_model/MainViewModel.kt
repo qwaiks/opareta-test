@@ -12,10 +12,9 @@ class MainViewModel : ViewModel() {
     fun onGetCryptoValue(str: CharSequence, s: Int, e: Int, count: Int) {
 
         if (str.length < 2) {
-            mainListener?.onError("Please enter more than $count value")
+            mainListener?.onError("Please enter more than 1 value")
             return
         }
-
         mainListener?.onGetLatestCrypto()
 
 
