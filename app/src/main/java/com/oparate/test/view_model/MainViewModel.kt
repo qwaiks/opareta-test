@@ -11,9 +11,10 @@ import com.oparate.test.helper.SQLiteHelper
 class MainViewModel : ViewModel() {
 
     var amount: String? = null
-    var selectedCurrency : String? = null
+    var selectedCurrency: String? = null
     var mainListener: MainListner? = null
-    var cryptoRepository:CryptoRepository ? = CryptoRepository()
+    var errorText: String? = null
+    var cryptoRepository: CryptoRepository? = CryptoRepository()
 
 
     fun onSelectItem(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
@@ -21,10 +22,10 @@ class MainViewModel : ViewModel() {
 
     }
 
-    fun onGetCrypto(v:View){
+    fun onGetCrypto(v: View) {
         mainListener?.onGetLatestCrypto()
         var response = cryptoRepository?.latestCrypto("20", selectedCurrency)
-        response?.let { mainListener?.onSuccess(it,selectedCurrency, amount) }
+        response?.let { mainListener?.onSuccess(it, selectedCurrency, amount) }
 
     }
 

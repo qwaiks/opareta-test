@@ -82,12 +82,21 @@
             android:id="@+id/lytProgressBar"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:visibility="gone"
             android:gravity="center">
 
             <ProgressBar
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/txtError"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:text="@={viewmodel.error}"
+            android:textColor="@android:color/holo_red_dark"
+            android:layout_height="match_parent"/>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/rcyCrypto"

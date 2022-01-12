@@ -79,6 +79,11 @@ class MainActivity : AppCompatActivity(), MainListner {
 
     override fun onError(str: String) {
         //show error message, hide recycler
+        binding?.viewmodel!!.errorText = str
+        binding?.lytProgressBar?.hide()
+        binding?.rcyCrypto?.hide()
+        binding?.txtError?.show()
+
     }
 
 
@@ -87,6 +92,8 @@ class MainActivity : AppCompatActivity(), MainListner {
         if (getLocally) {
             toast("Retrieving from local")
             retrieveFromSQLite()
+        }else{
+            onError(str)
         }
 
     }
@@ -99,25 +106,29 @@ class MainActivity : AppCompatActivity(), MainListner {
 
     }
 
-    fun retrieveFromSQLite() {
+    private fun retrieveFromSQLite() {
         val cryptoResponse = sqLiteHelper?.getLatestCurrency()
-        var timeStamp =SimpleDateFormat("yyyy-MM-dd").parse(cryptoResponse?.status!!.timestamp)
-        var currentStamp = Date()
-        var diff = (currentStamp.time - timeStamp.time) / 1000
-        if (diff > 60) {
-            //Data elapsed 60 seconds
-            onFailed("Failed, Outdated data",false)
+        if(cryptoResponse != null ){
+            var timeStamp =SimpleDateFormat("yyyy-MM-dd").parse(cryptoResponse?.status!!.timestamp)
+            var currentStamp = Date()
+            var diff = (currentStamp.time - timeStamp.time) / 1000
+            if (diff > 60) {
+                //Data elapsed 60 seconds
+                onFailed("Failed, Outdated Data",false)
+                adapter?.setValues(
+                    listOf(),
+                    binding?.viewmodel?.amount!!,
+                    binding?.viewmodel?.selectedCurrency!!
+                )
+                return
+            }
             adapter?.setValues(
-                listOf(),
+                cryptoResponse!!.data,
                 binding?.viewmodel?.amount!!,
                 binding?.viewmodel?.selectedCurrency!!
             )
-            return
+        }else{
+            onError("Failed No Data to Preview")
         }
-        adapter?.setValues(
-            cryptoResponse!!.data,
-            binding?.viewmodel?.amount!!,
-            binding?.viewmodel?.selectedCurrency!!
-        )
     }
 }
