@@ -1,10 +1,17 @@
 package com.oparate.test.helper
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
+import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.oparate.test.model.CryptoResponse
 import com.oparate.test.model.DataResponse
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import java.lang.Exception
 
 class SQLiteHelper(context: Context) :
     SQLiteOpenHelper(context, DATABASE_NAME, null, DATABASE_VERSION) {
@@ -13,57 +20,57 @@ class SQLiteHelper(context: Context) :
         private const val DATABASE_NAME = "cryto.db"
         private const val DATABASE_VERSION = 1
         private const val TBL_CURRENCY = ""
-        private const val TBL_QUOTE = ""
         private const val ID = ""
-        private const val CURRENCY_ID = ""
-        private const val SYMBOL = ""
-        private const val SLUG = ""
-        private const val NAME = ""
-        private const val PRICE = ""
-        private const val LAST_UPDATED = ""
-        private const val CURRENCY_KEY =""
+        private const val BASE_CURRENCY = ""
+        private const val RESPONSE = ""
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
         val createCurrencyTBL =
-            "CREATE TABLE " + TBL_CURRENCY + " (" + ID + " INTEGER, " + SYMBOL + " TEXT, " + SLUG + " TEXT ," + NAME + " TEXT );"
-        val createQuoteTBL =
-            "CREATE TABLE " + TBL_QUOTE + " (" + ID + " INTEGER PRIMARY KEY, " + PRICE + "TEXT , " + LAST_UPDATED + "TEXT , "+ CURRENCY_KEY + "TEXT , " + CURRENCY_ID + " INTEGER FOREIGN KEY (" + CURRENCY_ID + ") REFERENCES " + TBL_CURRENCY + " (" + ID + ") );"
+            "CREATE TABLE " + TBL_CURRENCY + " (" + ID + " INTEGER PRIMARY KEY ," + BASE_CURRENCY + " TEXT " + RESPONSE + " TEXT );"
         db?.execSQL(createCurrencyTBL)
-        db?.execSQL(createQuoteTBL)
+
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         db!!.execSQL("DROP TABLE IF EXISTS " + TBL_CURRENCY)
-        db!!.execSQL("DROP TABLE IF EXISTS " + TBL_QUOTE)
         onCreate(db)
     }
 
-    fun insertCurrency(cur: DataResponse):Long{
+    fun insertCurrency(response: CryptoResponse, baseCurrency: String): Long {
         val db = this.writableDatabase
 
         val currencyContentValues = ContentValues()
-        currencyContentValues.put(ID, cur.id)
-        currencyContentValues.put(SYMBOL, cur.symbol)
-        currencyContentValues.put(SLUG, cur.slug)
-        currencyContentValues.put(LAST_UPDATED, cur.last_updated)
-        currencyContentValues.put(NAME, cur.name)
-
+        currencyContentValues.put(BASE_CURRENCY, baseCurrency)
+        currencyContentValues.put(RESPONSE, Json.encodeToString(response))
 
         val insertCurrency = db.insert(TBL_CURRENCY, null, currencyContentValues)
 
-        for( key in cur.quote.keys){
-            val quoteContentValues = ContentValues()
-            quoteContentValues.put(CURRENCY_ID, cur.id )
-            quoteContentValues.put(CURRENCY_KEY, key )
-            quoteContentValues.put(PRICE, cur.quote[key]?.price)
-            quoteContentValues.put(LAST_UPDATED, cur.quote[key]?.last_updated)
-            db.insert(TBL_QUOTE, null , quoteContentValues)
-        }
-
-        return  insertCurrency
+        return insertCurrency
     }
 
+    @SuppressLint("Range")
+    fun getLatestCurrency(baseCurrency: String): CryptoResponse? {
+        var cryptoResponse: CryptoResponse? = null
+        val selectQuery =
+            "SELECT " + RESPONSE + " from " + TBL_CURRENCY + " where " + BASE_CURRENCY + "= " + baseCurrency
 
+        val db = this.readableDatabase
+        var cursor: Cursor?
+        try {
+            cursor = db.rawQuery(selectQuery, null)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            db.execSQL(selectQuery)
+            db.execSQL(selectQuery)
+            return cryptoResponse
+        }
+
+        if (cursor.moveToFirst()) {
+            var str = cursor.getString(cursor.getColumnIndex(RESPONSE))
+            cryptoResponse = Json.decodeFromString<CryptoResponse>(str)
+        }
+        return cryptoResponse
+    }
 
 }

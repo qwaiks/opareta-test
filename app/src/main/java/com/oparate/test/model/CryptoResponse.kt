@@ -1,4 +1,6 @@
 package com.oparate.test.model
 
+import kotlinx.serialization.Serializable
 
-data class CryptoResponse(val data: List<DataResponse>, )
+@Serializable
+data class CryptoResponse(val data: List<DataResponse>, val statusResponse: StatusResponse)
