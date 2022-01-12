@@ -2,6 +2,8 @@ package com.oparate.test.data.api
 
 import com.oparate.test.data.Api
 import com.oparate.test.model.CryptoResponse
+import com.oparate.test.services.NetworkConnectionInterceptor
+import okhttp3.OkHttpClient
 import okhttp3.ResponseBody
 import retrofit2.Call
 import retrofit2.Retrofit
@@ -23,9 +25,10 @@ interface CryptoApi {
         var retrofitService: CryptoApi? = null
 
         fun getInstance(): CryptoApi {
-
+           /* val okHttpClient =
+                OkHttpClient.Builder().addInterceptor().build()*/
             if (retrofitService == null) {
-                val retrofit = Retrofit.Builder()
+                val retrofit = Retrofit.Builder()/*.client(okHttpClient)*/
                     .baseUrl(Api.BASE_URL)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build()
