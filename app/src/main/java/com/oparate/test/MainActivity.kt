@@ -48,11 +48,10 @@ class MainActivity : AppCompatActivity(), MainListner {
         binding?.lytProgressBar?.show()
     }
 
-    override fun onRefreshed(response: MutableLiveData<CryptoResponse?>) {
-        response.observe(this, Observer {
-            saveResponse(it!!)
-
-        })
+    override fun onRefreshed(response: CryptoResponse?) {
+        if(response != null){
+            saveResponse(response)
+        }
     }
 
 
@@ -64,12 +63,12 @@ class MainActivity : AppCompatActivity(), MainListner {
         binding?.lytProgressBar?.hide()
         binding?.rcyCrypto?.show()
         response.observe(this, Observer {
-            if (it?.data == null || it?.data.isEmpty()) {
+            if (it?.data == null || it.data.isEmpty()) {
                 onFailed("Please check your network connection", true)
             } else {
-                adapter?.setValues(it!!.data, amount!!, baseCurrency!!)
-                onRefreshed(response!!)
-                //it?.data?.first()?.let { it1 -> Log.e("QWEDD", it1.name) }
+                adapter?.setValues(it.data, amount!!, baseCurrency!!)
+                Log.e("adx", baseCurrency!!)
+                onRefreshed(it)
             }
 
         })
@@ -79,7 +78,7 @@ class MainActivity : AppCompatActivity(), MainListner {
 
     override fun onError(str: String) {
         //show error message, hide recycler
-        binding?.viewmodel!!.errorText = str
+        binding?.txtError?.text = str
         binding?.lytProgressBar?.hide()
         binding?.rcyCrypto?.hide()
         binding?.txtError?.show()
@@ -88,11 +87,11 @@ class MainActivity : AppCompatActivity(), MainListner {
 
 
     override fun onFailed(str: String, getLocally: Boolean) {
-        toast(str)
+        //toast(str)
         if (getLocally) {
-            toast("Retrieving from local")
+           // toast("Retrieving from local")
             retrieveFromSQLite()
-        }else{
+        } else {
             onError(str)
         }
 
@@ -100,21 +99,19 @@ class MainActivity : AppCompatActivity(), MainListner {
 
     fun saveResponse(res: CryptoResponse) {
         val status = sqLiteHelper?.insertCurrency(res)
-        if (status!! > -1) {
-            toast("Saved to SQLite")
-        }
 
     }
 
     private fun retrieveFromSQLite() {
         val cryptoResponse = sqLiteHelper?.getLatestCurrency()
-        if(cryptoResponse != null ){
-            var timeStamp =SimpleDateFormat("yyyy-MM-dd").parse(cryptoResponse?.status!!.timestamp)
+        if (cryptoResponse != null) {
+            var timeStamp = SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss").parse(cryptoResponse?.status!!.timestamp)
             var currentStamp = Date()
             var diff = (currentStamp.time - timeStamp.time) / 1000
-            if (diff > 60) {
+           // toast(diff.toString())
+            if (diff > 4000) {
                 //Data elapsed 60 seconds
-                onFailed("Failed, Outdated Data",false)
+                onFailed("Failed, Outdated Data", false)
                 adapter?.setValues(
                     listOf(),
                     binding?.viewmodel?.amount!!,
@@ -127,7 +124,7 @@ class MainActivity : AppCompatActivity(), MainListner {
                 binding?.viewmodel?.amount!!,
                 binding?.viewmodel?.selectedCurrency!!
             )
-        }else{
+        } else {
             onError("Failed No Data to Preview")
         }
     }

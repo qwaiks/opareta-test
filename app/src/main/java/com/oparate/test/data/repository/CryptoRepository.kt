@@ -26,6 +26,9 @@ class CryptoRepository {
                     if (response.isSuccessful) {
                         cryptoResponseLiveData.postValue(response.body())
                         // update sqlite db
+                    }else{
+                        cryptoResponseLiveData.postValue(null)
+
                     }
                 }
 

@@ -66,7 +66,7 @@ class SQLiteHelper(context: Context) :
 
         if (cursor.moveToLast()) {
             var str = cursor.getString(cursor.getColumnIndex(RESPONSE))
-            Log.e("QWEDD", str)
+            //Log.e("QWEDD", str)
             cryptoResponse = Json.decodeFromString<CryptoResponse>(str)
         }
         return cryptoResponse

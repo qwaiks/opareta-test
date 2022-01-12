@@ -27,7 +27,6 @@ class CryptoListAdapter(
         this.mList = mList
         this.amount = amount
         this.baseConvert = baseConvert
-        Log.e("QWEDD", "${mList.size} $amount $baseConvert")
         notifyDataSetChanged()
 
     }
@@ -44,8 +43,9 @@ class CryptoListAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
 
         val cryptoResult = mList!![position]
-        Log.e("QWEDD", cryptoResult.quote.toString())
-        val currencyValue = cryptoResult.quote[baseConvert]?.let { getCurrencyValue(it.price) }
+        Log.e("QWEDD", cryptoResult.quote[baseConvert]!!.price.toString())
+
+        val currencyValue =  getCurrencyValue(cryptoResult.quote[baseConvert]!!.price)
 
         holder.txtName.text = cryptoResult.name;
         holder.txtSymbol.text = cryptoResult.symbol;

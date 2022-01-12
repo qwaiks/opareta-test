@@ -5,7 +5,7 @@ import com.oparate.test.model.CryptoResponse
 
 interface MainListner {
     fun onGetLatestCrypto()
-    fun onRefreshed(response: MutableLiveData<CryptoResponse?>)
+    fun onRefreshed(response: CryptoResponse?)
     fun onSuccess(
         response: MutableLiveData<CryptoResponse?>,
         baseCurrency: String?,
